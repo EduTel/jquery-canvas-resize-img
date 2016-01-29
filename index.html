@@ -97,41 +97,14 @@
 	<button onclick="send()">enviar</button>
 
 	<div id="progress-div"><div id="progress-bar"></div></div>
-	<form id='my-form' action='laod_php/array_img.php' method='post' enctype='multipart/form-data'>
-		<input  id="imgs" name='imgs' type='file'  />
-		<input type='submit' value='enviar'>
-	</form>
-	<script type="text/javascript">
-		$('#my-form').submit( function(event) {
-			
-			console.log(JSON.stringify(window.FileList));
-			console.log('entro al submit');
-		    $.ajax( {
-		      url: 'laod_php/array_img.php',
-		      type: 'POST',
-		      data: new FormData( this ),
-		      processData: false,
-		      contentType: false,
-		      success: function(data) {
-			       console.log(data);
-			  }
-		    }
-
-			); 
-		    event.preventDefault();
-		  }); 
-	</script>
-			
-
-	<!--</div>-->
 
 		<a id="descargar">Download as image</a>
+
 		<script type="text/javascript">
         	/*load img in canvas in wondows load*/
 			$( window ).load(function() {
 				$('.preload').each(function(index) {
 					var canvas_id=$(this).attr('canvas_img');
-					//alert(canvas_id);
 					load_img_url(canvas_id,500,$(this).attr('img_url'));
 
 				});
@@ -191,7 +164,6 @@
 		        img.onload = function() {
 		          $('#'+object_clicked).removeClass('empty');
 		          $('#'+object_clicked).addClass('fill');
-		          //console.log('img1'+JSON.stringify({img}));
 		          canvas.width  = ancho_deseado;//canvas.width
 		          canvas.height = (ancho_deseado*img.height)/img.width;//canvas.height
 		          ctx.drawImage(this, 0, 0,ancho_deseado,(ancho_deseado*img.height)/img.width);//canvas img sinze
