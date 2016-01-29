@@ -127,172 +127,247 @@
 
 		<a id="descargar">Download as image</a>
 		<script type="text/javascript">
-			window.ancho_deseado = 500;
-			window.data_type     ='image';
-			window.format_data   ='jpeg,png,jpg,gif';
-			//*******************************************************
-			window.object_clicked='';
-			window.URL           = window.URL || window.webkitURL || window.mozURL;
-			//******************************************************type image
-			var res = window.format_data.split(",");
-			attr_accept ='';
-			separator   ='';
-			res.forEach(function(entry) {
-				attr_accept+=separator+data_type+'/'+entry;
-				if(separator==''){
-					separator=",";
-				}
-			});
-			$('.input_file').attr('accept',''+attr_accept);
-			/******************************************************load_img*/
-			function load_img(canvas_this,ancho_deseado,file){
-				img        = new Image();// nueva imagen
-				var reader = new FileReader();//reader
-				if (file) {
-			    	var srcImg=reader.readAsDataURL(file);
-				}	
-				reader.onloadend = function (e) {
+			/*send data ajax form 1*/
+        	$("#guardarc1").click(function(event){
+	            console.log('entro al evento click');
+	            event.preventDefault();
+	            var myheight = $("#msg_form1_contend").css("height");
 
-					img.src = e.target.result;
-					//imageUrl = URL.createObjectURL(e);
-					//console.log('x->'+JSON.stringify({imageUrl}) );
-					console.log('reader.result->'+reader.result);
-			    }
-			    console.log(canvas_this);
-				var canvas   = document.getElementById(''+canvas_this+'');// canvas
-				var ctx      = canvas.getContext('2d'); // contexto
+	            serialized=$("#formVehiculo1").serialize()+'&guardarc1=Guardar';
+	            $.post("guardarCambios.php", serialized,  
+		            function(data){
+		            	$('#msg_form1').text(data);
+		            	$('#msg_form1_contend').fadeIn( "slow", function() {
+		            		setTimeout(function(){ $('#msg_form1_contend').fadeOut();location.reload(); }, 2000);
+		            	});
+		            } 
+	            );
+	        });
+        	/*load img in canvas in wondows load*/
+			$( window ).load(function() {
+				$('.preload').each(function(index) {
+					var canvas_id=$(this).attr('canvas_img');
+					//alert(canvas_id);
+					load_img_url(canvas_id,500,$(this).attr('img_url'));
 
-				img.onload = function() {
-					$('#'+object_clicked).removeClass('empty');
-					$('#'+object_clicked).addClass('fill');
-					console.log('img1'+JSON.stringify({img}));
-					canvas.width  = ancho_deseado;//canvas.width
-					canvas.height = (ancho_deseado*img.height)/img.width;//canvas.height
-					ctx.drawImage(this, 0, 0,ancho_deseado,(ancho_deseado*img.height)/img.width);//canvas img sinze
-				};
-			}
-			$('.clear').click(function(){
-				var id   = $(this).attr('canvas');// canvas
-				var canvas   = document.getElementById(''+id+'');// canvas
-				var ctx      = canvas.getContext('2d'); // contexto
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				$('#'+$(this).attr('canvas')).parents('.canvas_contend').removeClass('fill');
-				$('#'+$(this).attr('canvas')).parents('.canvas_contend').addClass('empty');
-			});
-			function clear_all(){
-				//$('.clear').each(function(index){})
-				$('.clear').click();
-				$('.canvas_contend').removeClass('fill');
-				$('canvas_contend').addClass('empty');
-			} 
-			/******************************************************onchange_img*/
-			$('.input_file').change(function() {
-				//object file
-				var file = this.files[0];
-				//console.log('file1'+$(this).getAsBinary());
-				load_img($(this).attr('canvas'),window.ancho_deseado,file);
-			});
-			/******************************************************drop in canvas*/
-			$('.canvas_contend').on('drop', function (event) {
-				window.object_clicked=$(this).attr('id');
-		        console.log(event.type);
-		        event.preventDefault();
-		        event.stopPropagation();
-		        if (event.originalEvent.dataTransfer.files.length > 0) {
-					var file = event.originalEvent.dataTransfer.files[0];
-
-		            load_img($(this).find('canvas').attr('id'),window.ancho_deseado,file);
-		        } else {
-		        	console.log('0 file');
-		        }
-		    });
-		    /*******************************************************call click input*/
-		    $('.canvas_contend').click(function(event){
-		    	 event.preventDefault();
-		         event.stopPropagation();
-		    	 window.object_clicked=$(this).attr('id');
-		    	 console.log($(this).find('canvas').attr('id'));
-		    	 $('.input_file[canvas='+$(this).find('canvas').attr('id')+']').click();
-		   	});
-		   	/*******************************************************save as ajax*/
-		   	function send(){
-		   		// Create new form data
-				var FormData_new_canvas = new FormData();
-				FormData_new_canvas.enctype='multipart/form-data';
-				/*array*/
-		   		var img_array=new Array();
-		   		$.fn.reverse = [].reverse;
-		   		$('canvas').parents('.fill').reverse().each(function(index) {
-					var file             = $('.input_file[canvas="'+$(this).find('canvas').attr('id')+'"')[0].files[0];
-					var canvas_todataurl = document.getElementById(""+$(this).find('canvas').attr('id')+"").toDataURL('image/jpg');
-					var jpegfile         = before_send_dat_to_url_a_blob(canvas_todataurl);
-					console.log('jpegfile'+jpegfile);
-		   			// Append our Canvas image file to the form data
-					FormData_new_canvas.append("img_array[]",jpegfile,file.name);
 				});
+				function load_img_url(canvas_this,ancho_deseado,url){
+					console.log(canvas_this,ancho_deseado,url);
+					var canvas = document.getElementById(''+canvas_this+'');// canvas
+					var ctx    = canvas.getContext('2d'); // contexto
 
-				console.log('after send ajax--------->')
-			   	$.ajax({
-					cache       : false,
-					type        : "POST",
-					url         : "laod_php/array_img.php",
-					processData : false,
-					contentType : false,
-					data        :FormData_new_canvas,
-				    beforeSend: function() {
-				        $("#progress-bar").css('width','0%');
-				    },
-			        xhr: function() {
-				        var xhr = new window.XMLHttpRequest();
-				        xhr.upload.addEventListener("progress", function(evt) {
-				            if (evt.lengthComputable) {
-				                var percent = (evt.loaded / evt.total)* 100;;
-				                $("#progress-bar").css('width',percent+'%');
-				                $("#progress-bar").css('background-color','#12CC1A');
-							    $("#progress-bar").html('<div id="progress-status">' + percent +' %</div>');
-				            }
-				       }, false);
-				       xhr.addEventListener("progress", function(evt) {
-				           if (evt.lengthComputable) {
-				               var percent = evt.loaded / evt.total;
-				           }
-				       }, false);
+					// Create an image element
+				    var img = document.createElement('IMG');
+					img.src = url;
 
-				       return xhr;
-				    },
-			        error: function(data) {
-			        	console.log(data);
-			        },
-			        success: function(data) {
-			        	console.log(data);
-			        	
-			        }
-				}, function(data) {
-					console.log(data);
-				  }
-				);
+					//remove class empty
+					$('#'+canvas_this).parents('.canvas_contend').removeClass('empty');
+					$('#'+canvas_this).parents('.canvas_contend').addClass('fill');
+					// When the image is loaded, draw it
+					img.onload = function () {
+						canvas.width  = ancho_deseado;//canvas.width
+						canvas.height = (ancho_deseado*img.height)/img.width;//canvas.height
+						ctx.drawImage(img, 0, 0,ancho_deseado,(ancho_deseado*img.height)/img.width);//canvas img sinze
+					}
+			    }
+			});
+		    window.ancho_deseado = 500;
+		    window.data_type     ='image';
+		    window.format_data   ='jpeg,png,jpg,gif';
+		    //*******************************************************
+		    window.object_clicked ='';
+		    window.URL            = window.URL || window.webkitURL || window.mozURL;
+		    //******************************************************type image
+		    var res = window.format_data.split(",");
+		    attr_accept = '';
+		    separator   = '';
+		    res.forEach(function(entry) {
+		      attr_accept+=separator+data_type+'/'+entry;
+		      if(separator==''){
+		        separator=",";
+		      }
+		    });
+		    $('.input_file').attr('accept',''+attr_accept);
+		    /******************************************************load_img*/
+		    function load_img(canvas_this,ancho_deseado,file){
+		        img        = new Image();// nueva imagen
+		        var reader = new FileReader();//reader
+		        if (file) {
+		            var srcImg=reader.readAsDataURL(file);
+		            console.log('readAsDataURL------------>'+file);
+		        } 
+		        reader.onloadend = function (e) {
+		          img.src = e.target.result;
+		          console.log('reader.result->'+reader.result);
+		        }
+		        console.log(canvas_this);
+		        var canvas   = document.getElementById(''+canvas_this+'');// canvas
+		        var ctx      = canvas.getContext('2d'); // contexto
 
-			}
-			// Convert dataURL to Blob object
-			function before_send_dat_to_url_a_blob(dataURL) {
-			  // decodifica base 64 y extrae solo los caracteres validos
-			  var binary = atob(dataURL.split(',')[1]);
-			  // Create 8-bit unsigned array
-			  var array = [];
-			  for(var i = 0; i < binary.length; i++) {
-			      array.push(binary.charCodeAt(i));
-			  }
-			  // retorne nuestro blob object
-			  return new Blob([new Uint8Array(array)], {type: 'image/jpg'});
-			}
+		        img.onload = function() {
+		          $('#'+object_clicked).removeClass('empty');
+		          $('#'+object_clicked).addClass('fill');
+		          //console.log('img1'+JSON.stringify({img}));
+		          canvas.width  = ancho_deseado;//canvas.width
+		          canvas.height = (ancho_deseado*img.height)/img.width;//canvas.height
+		          ctx.drawImage(this, 0, 0,ancho_deseado,(ancho_deseado*img.height)/img.width);//canvas img sinze
+		        };
+		    }
+		    $('.clear').click(function(){
+				var idVehiculos_ = $('input#idVehiculos').val();
+				var idImg_ = $(this).attr('id');
+				var this_no_lost=$(this);
+				var r = confirm('¿Confirme que desea eliminar la imagen '+idImg_+' ?');
+				if(r){
+					console.log("eliminando");
+					var id     = $(this).attr('canvas');// canvas
+					var canvas = document.getElementById(''+id+'');// canvas
+					var ctx    = canvas.getContext('2d'); // contexto
+					console.log("todo bien");
+			        $.post("eliminarImgVehiculo.php", {"idVehiculos":idVehiculos_,"idImagen":idImg_},  
+			            function(data){
+			            	console.log("data"+data);
+							ctx.clearRect(0, 0, canvas.width, canvas.height);
+							$('#'+$(this_no_lost).attr('canvas')).parents('.canvas_contend').removeClass('fill');
+							$('#'+$(this_no_lost).attr('canvas')).parents('.canvas_contend').addClass('empty');
+			            } 
+		            );
+			    }
+		    });
+		    function clear_all(){
+		      $('.clear').click();
+		      $('.canvas_contend').removeClass('fill');
+		      $('canvas_contend').addClass('empty');
+		    } 
+		    /******************************************************onchange_img*/
+		    $('.input_file').change(function() {
+		      //object file
+		      var file = this.files[0];
+		      console.log('file----------->'+file);
+		      //console.log('file1'+$(this).getAsBinary());
+		      load_img($(this).attr('canvas'),window.ancho_deseado,file);
+		    });
+		      /******************************************************drop in canvas*/
+	        $('.canvas_contend').on('drop', function (event) {
+		        window.object_clicked=$(this).attr('id');
+	            console.log(event.type);
+	            event.preventDefault();
+	            event.stopPropagation();
+	            if (event.originalEvent.dataTransfer.files.length > 0) {
+	          		var file = event.originalEvent.dataTransfer.files[0];
+	                load_img($(this).find('canvas').attr('id'),window.ancho_deseado,file);
+	            } else {
+	              console.log('0 file');
+	            }
+	        });
+	        /*******************************************************call click input*/
+	        $('.canvas_contend').click(function(event){
+	           event.preventDefault();
+	             event.stopPropagation();
+	           window.object_clicked=$(this).attr('id');
+	           console.log($(this).find('canvas').attr('id'));
+	           $('.input_file[canvas='+$(this).find('canvas').attr('id')+']').click();
+	        });
+	        /*******************************************************save as ajax*/
+	        function send(){
+	          		// Create new form data
+					var FormData_new_canvas     = new FormData();
+					FormData_new_canvas.enctype ='multipart/form-data';
+			       var position=0;
+			       /*array*/
+			       var img_array= new Array();
+			       $.fn.reverse = [].reverse;
+			       //$('canvas').parents('.fill').reverse().each(function(index) {
+			       $('canvas').parents('.canvas_contend').reverse().each(function(index) {
+					        console.log('todo bien '+$(this).html() );
+					        var file             = $('.input_file[canvas="'+$(this).find('canvas').attr('id')+'"]')[0].files[0];
+					        alert(file);
+					        console.log('file'+file);
+					        if (file !== undefined) {
+					        	FormData_new_canvas.append("position[]",position);
+					          	console.log('position*************************'+position);
+								// se ejecutan las siguientes instrucciones
+								var canvas_todataurl = document.getElementById(""+$(this).find('canvas').attr('id')+"").toDataURL('image/jpg');
+						        var jpegfile         = before_send_dat_to_url_a_blob(canvas_todataurl);
+						        console.log('jpegfile'+jpegfile);
+						        console.log('file.name'+file.name);
+						        // Append our Canvas image file to the form data
+						        console.log('se esta contrullendo el form data');
+						        FormData_new_canvas.append("img_array[]",jpegfile,file.name);
+						          
+							}else{
+							}
+							position=position+1;
+				   });
+					
+				   FormData_new_canvas.append("guardar_imagenes",'guardar_imagenes');
+				   FormData_new_canvas.append("idVehiculos",$('#idVehiculos').attr('value'));
+					
+				   //return;
+
+		          console.log('after send ajax--------->');
+		          $.ajax({
+			          cache       : false,
+			          type        : "POST",
+			          url         : "guardarCambios.php",
+			          processData : false,
+			          contentType : false,
+			          data        : FormData_new_canvas,
+			          beforeSend: function() {
+			              $("#progress-bar").css('width','0%');
+			          },
+		              xhr: function() {
+		                var xhr = new window.XMLHttpRequest();
+		                xhr.upload.addEventListener("progress", function(evt) {
+		                    if (evt.lengthComputable) {
+		                        var percent = (evt.loaded / evt.total)* 100;
+		                        $("#progress-bar").css('width',percent+'%');
+		                        $("#progress-bar").css('background-color','#12CC1A');
+		                  		$("#progress-bar").html('<div id="progress-status">' + percent +' %</div>');
+		                    }
+		               }, false);
+		               xhr.addEventListener("progress", function(evt) {
+		                   if (evt.lengthComputable) {
+		                       var percent = evt.loaded / evt.total;
+		                   }
+		               }, false);
+
+		               return xhr;
+		            },
+		              error: function(data) {
+		                console.log(data);
+		              },
+		              success: function(data) {
+		              	$('.input_file').val('');
+		              	location.reload();
+		                console.log(data);
+		                
+		              }
+		        }, function(data) {
+		          console.log(data);
+		          }
+		        );
+	      	}
+		    // Convert dataURL to Blob object
+	        function before_send_dat_to_url_a_blob(dataURL) {
+	          // decodifica base 64 y extrae solo los caracteres validos
+	          var binary = atob(dataURL.split(',')[1]);
+	          // Create 8-bit unsigned array
+	          var array = [];
+	          for(var i = 0; i < binary.length; i++) {
+	              array.push(binary.charCodeAt(i));
+	          }
+	          // retorne nuestro blob object
+	          return new Blob([new Uint8Array(array)], {type: 'image/jpg'});
+	        }
 		    /******************************************************downloadCanvas*/
-			function downloadCanvas(link, canvasId, filename) {
-			    link.href = document.getElementById(canvasId).toDataURL();
-			    link.download = filename;
-			}
-			document.getElementById('descargar').addEventListener('click', function() {
-			    downloadCanvas(this, 'canvas1', 'test.png');
-			}, false);
+		    function downloadCanvas(link, canvasId, filename) {
+		        link.href = document.getElementById(canvasId).toDataURL();
+		        link.download = filename;
+		    }
+		    document.getElementById('descargar').addEventListener('click', function() {
+		        downloadCanvas(this, 'canvas1', 'test.png');
+		    }, false);
 		</script>
 
 </body></html>
