@@ -127,22 +127,6 @@
 
 		<a id="descargar">Download as image</a>
 		<script type="text/javascript">
-			/*send data ajax form 1*/
-        	$("#guardarc1").click(function(event){
-	            console.log('entro al evento click');
-	            event.preventDefault();
-	            var myheight = $("#msg_form1_contend").css("height");
-
-	            serialized=$("#formVehiculo1").serialize()+'&guardarc1=Guardar';
-	            $.post("guardarCambios.php", serialized,  
-		            function(data){
-		            	$('#msg_form1').text(data);
-		            	$('#msg_form1_contend').fadeIn( "slow", function() {
-		            		setTimeout(function(){ $('#msg_form1_contend').fadeOut();location.reload(); }, 2000);
-		            	});
-		            } 
-	            );
-	        });
         	/*load img in canvas in wondows load*/
 			$( window ).load(function() {
 				$('.preload').each(function(index) {
