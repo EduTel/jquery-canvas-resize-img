@@ -16,13 +16,13 @@
 		text-align : center;
 	}
 	.empty{
-		background-image    : url('img_prueba/1449883028_sign-add.png');
+		background-image    : url('img_prueba/add.png');
 	}
 	.load{
-		background-image    : url('img_prueba/1449883028_sign-add.png');
+		background-image    : url('img_prueba/add.png');
 	}
 	.clear{
-		background-image : url('img_prueba/1449899328_free-27.png');
+		background-image : url('img_prueba/clear.png');
 		width            : 50px;
 		height           : 50px;
 		border           : 1px solid black;
@@ -79,21 +79,46 @@
 <body>
 	<!--<div class='mi_canvas'></div>-->
 	<!--<div class='thumbnail' >-->
-		<div id="canvas_contend_1" class="canvas_contend empty box_img" contenteditable="true"><div class="canvas_bottom"><canvas name="canvas1" id="canvas1"><p>not suppor Canvas.</p></canvas></div></div>
+		<div id="canvas_contend_1" class="canvas_contend empty box_img" ondrop="drop(event)" ondragover="allowDrop(event)">
+			<div class="canvas_bottom">
+				<canvas name="canvas1" id="canvas1"><p>not suppor Canvas.</p></canvas>
+			</div>
+		</div>
 			<input class="input_file" type="file" canvas="canvas1">
 			<button class="clear" canvas="canvas1"></button>
-		<div id="canvas_contend_2" class="canvas_contend empty box_img" contenteditable="true"><div class="canvas_bottom"><canvas name="canvas2" id="canvas2"><p>not suppor Canvas.</p></canvas></div></div>
+
+		<div id="canvas_contend_2" class="canvas_contend empty box_img" ondrop="drop(event)" ondragover="allowDrop(event)">
+			<div class="canvas_bottom">
+				<canvas name="canvas2" id="canvas2"><p>not suppor Canvas.</p></canvas>
+			</div>
+		</div>
 			<input class="input_file" type="file" canvas="canvas2">
 			<button class="clear" canvas="canvas2"></button>
-		<div id="canvas_contend_3" class="canvas_contend empty box_img" contenteditable="true"><div class="canvas_bottom"><canvas name="canvas3" id="canvas3"><p>not suppor Canvas.</p></canvas></div></div>
+
+		<div id="canvas_contend_3" class="canvas_contend empty box_img" ondragover="allowDrop(event)">
+			<div class="canvas_bottom">
+				<canvas name="canvas3" id="canvas3"><p>not suppor Canvas.</p></canvas>
+			</div>
+		</div>
 			<input class="input_file" type="file" canvas="canvas3">
 			<button class="clear" canvas="canvas3"></button>
-		<div id="canvas_contend_4" class="canvas_contend empty box_img" contenteditable="true"><div class="canvas_bottom"><canvas name="canvas4" id="canvas4"><p>not suppor Canvas.</p></canvas></div></div>
+
+		<div id="canvas_contend_4" class="canvas_contend empty box_img" ondragover="allowDrop(event)">
+			<div class="canvas_bottom">
+				<canvas name="canvas4" id="canvas4"><p>not suppor Canvas.</p></canvas>
+			</div>
+		</div>
 			<input class="input_file" type="file" canvas="canvas4">
 			<button class="clear" canvas="canvas4"></button>
-		<div id="canvas_contend_5" class="canvas_contend empty box_img" contenteditable="true"><div class="canvas_bottom"><canvas name="canvas5" id="canvas5"><p>not suppor Canvas.</p></canvas></div></div>
+
+		<div id="canvas_contend_5" class="canvas_contend empty box_img" ondragover="allowDrop(event)">
+			<div class="canvas_bottom">
+				<canvas name="canvas5" id="canvas5"><p>not suppor Canvas.</p></canvas>
+			</div>
+		</div>
 			<input class="input_file" type="file" canvas="canvas5">
 			<button class="clear" canvas="canvas5"></button>
+
 	<button onclick="send()">enviar</button>
 
 	<div id="progress-div"><div id="progress-bar"></div></div>
@@ -101,7 +126,8 @@
 		<a id="descargar">Download as image</a>
 
 		<script type="text/javascript">
-        	/*load img in canvas in wondows load*/
+        	/*load img in canvas in wondows load with element with attr preload */
+			/*
 			$( window ).load(function() {
 				$('.preload').each(function(index) {
 					var canvas_id=$(this).attr('canvas_img');
@@ -128,6 +154,11 @@
 					}
 			    }
 			});
+			*/
+			function allowDrop(ev) {
+			    ev.preventDefault();
+			}
+
 		    window.ancho_deseado = 500;
 		    window.data_type     ='image';
 		    window.format_data   ='jpeg,png,jpg,gif';
@@ -203,7 +234,7 @@
 		      //console.log('file1'+$(this).getAsBinary());
 		      load_img($(this).attr('canvas'),window.ancho_deseado,file);
 		    });
-		      /******************************************************drop in canvas*/
+		      /******************************************************drop in div load img in canvas*/
 	        $('.canvas_contend').on('drop', function (event) {
 		        window.object_clicked=$(this).attr('id');
 	            console.log(event.type);
@@ -226,9 +257,9 @@
 	        });
 	        /*******************************************************save as ajax*/
 	        function send(){
-	          		// Create new form data
-					var FormData_new_canvas     = new FormData();
-					FormData_new_canvas.enctype ='multipart/form-data';
+	          	   // Create new form data
+				   var FormData_new_canvas     = new FormData();
+				   FormData_new_canvas.enctype ='multipart/form-data';
 			       var position=0;
 			       /*array*/
 			       var img_array= new Array();
